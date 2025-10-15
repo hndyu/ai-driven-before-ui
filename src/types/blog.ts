@@ -1,9 +1,22 @@
+// ユーザー情報の型定義
+export interface User {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 // ブログ投稿の型定義
 export interface Post {
     id: number;
     title: string;
     description: string;
     date: string;
+    authorId: string; // 投稿者のユーザーID
+    author?: User; // 投稿者の情報（オプショナル）
 }
 
 // API レスポンスの型定義
@@ -30,6 +43,7 @@ export interface PostResponse {
 export interface CreatePostData {
     title: string;
     description: string;
+    authorId: string; // 投稿者のユーザーIDを必須に
 }
 
 export interface UpdatePostData extends CreatePostData {

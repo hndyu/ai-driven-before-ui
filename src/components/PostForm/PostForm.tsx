@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Post, CreatePostData, UpdatePostData } from '@/types/blog';
 import { createPost, updatePost } from '@/lib/api';
 import { Input, Button } from '@/components/UI';
+import { useUser } from '@clerk/nextjs';
 
 interface PostFormProps {
     post?: Post;
@@ -13,6 +14,7 @@ interface PostFormProps {
 }
 
 export default function PostForm({ post, onSuccess, onCancel, isSubmitting = false }: PostFormProps) {
+    const { user, isLoaded } = useUser();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -51,6 +53,17 @@ export default function PostForm({ post, onSuccess, onCancel, isSubmitting = fal
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // 認証チェック
+        if (!isLoaded) {
+            alert('認証情報を読み込み中です。しばらくお待ちください。');
+            return;
+        }
+
+        if (!user) {
+            alert('投稿するにはログインが必要です。');
+            return;
+        }
+
         if (!validateForm()) {
             return;
         }
@@ -65,6 +78,7 @@ export default function PostForm({ post, onSuccess, onCancel, isSubmitting = fal
                     id: post.id,
                     title: formData.title,
                     description: formData.description,
+                    authorId: user.id, // 認証されたユーザーIDを設定
                 };
                 result = await updatePost(updateData);
             } else {
@@ -72,6 +86,7 @@ export default function PostForm({ post, onSuccess, onCancel, isSubmitting = fal
                 const createData: CreatePostData = {
                     title: formData.title,
                     description: formData.description,
+                    authorId: user.id, // 認証されたユーザーIDを設定
                 };
                 result = await createPost(createData);
             }
