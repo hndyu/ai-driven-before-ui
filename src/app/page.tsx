@@ -81,6 +81,7 @@ export default function Home() {
                   postId={selectedPostId}
                   onEditPost={handleEditPost}
                   onDeletePost={handleDeletePost}
+                  onBackToList={handleBackToList}
                 />
               )
             )}

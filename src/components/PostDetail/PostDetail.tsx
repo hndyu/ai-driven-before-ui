@@ -9,9 +9,10 @@ interface PostDetailProps {
     postId: number;
     onEditPost?: (post: Post) => void;
     onDeletePost?: (postId: number) => void;
+    onBackToList?: () => void;
 }
 
-export default function PostDetail({ postId, onEditPost, onDeletePost }: PostDetailProps) {
+export default function PostDetail({ postId, onEditPost, onDeletePost, onBackToList }: PostDetailProps) {
     const [post, setPost] = useState<Post | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export default function PostDetail({ postId, onEditPost, onDeletePost }: PostDet
                         </div>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">投稿が見つかりません</h3>
                         <p className="text-gray-500 mb-4">{error || '指定された投稿は存在しません'}</p>
-                        <Button onClick={() => window.history.back()} variant="outline">
+                        <Button onClick={() => onBackToList?.()} variant="outline">
                             戻る
                         </Button>
                     </div>
@@ -149,7 +150,7 @@ export default function PostDetail({ postId, onEditPost, onDeletePost }: PostDet
             <Card>
                 <div className="flex justify-between items-center">
                     <Button
-                        onClick={() => window.history.back()}
+                        onClick={() => onBackToList?.()}
                         variant="outline"
                     >
                         ← 一覧に戻る
