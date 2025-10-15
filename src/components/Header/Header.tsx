@@ -3,6 +3,7 @@
 import React from 'react';
 import { UserButton } from '@clerk/nextjs';
 import { Button } from '@/components/UI';
+import Link from 'next/link';
 
 interface HeaderProps {
     onCreatePost?: () => void;
@@ -16,32 +17,32 @@ export default function Header({ onCreatePost }: HeaderProps) {
                     {/* ロゴ・タイトル */}
                     <div className="flex items-center">
                         <h1 className="text-2xl font-bold text-gray-900">
-                            <a href="/" className="hover:text-blue-600 transition-colors duration-200">
+                            <Link href="/" className="hover:text-blue-600 transition-colors duration-200">
                                 My Blog
-                            </a>
+                            </Link>
                         </h1>
                     </div>
 
                     {/* ナビゲーション */}
                     <nav className="hidden md:flex items-center space-x-8">
-                        <a
+                        <Link
                             href="/"
                             className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
                         >
                             ホーム
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/about"
                             className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
                         >
                             このブログについて
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/contact"
                             className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
                         >
                             お問い合わせ
-                        </a>
+                        </Link>
                     </nav>
 
                     {/* アクションエリア */}
@@ -73,24 +74,24 @@ export default function Header({ onCreatePost }: HeaderProps) {
             {/* モバイルメニュー */}
             <div className="md:hidden border-t border-gray-200">
                 <div className="px-4 py-2 space-y-1">
-                    <a
+                    <Link
                         href="/"
                         className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                     >
                         ホーム
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                         href="/about"
                         className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                     >
                         このブログについて
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                         href="/contact"
                         className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                     >
                         お問い合わせ
-                    </a>
+                    </Link>
                     {onCreatePost && (
                         <button
                             onClick={onCreatePost}
