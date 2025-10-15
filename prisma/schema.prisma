@@ -18,6 +18,8 @@ model Post {
   title String
   description String
   date DateTime @default(now())
+  authorId String // 投稿者のユーザーID
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade) // ユーザーとのリレーション
 }
 
 model User {
@@ -28,4 +30,5 @@ model User {
   imageUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  posts Post[] // ユーザーが作成した投稿のリレーション
 }

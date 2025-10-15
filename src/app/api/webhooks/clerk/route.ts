@@ -37,12 +37,12 @@ export async function POST(req: NextRequest) {
         }
 
         // イベントタイプを取得
-        const eventType = evt.type;
+        const eventType = (evt as any).type;
         console.log(`Received webhook event: ${eventType}`);
 
         // ユーザー作成イベントを処理
         if (eventType === 'user.created') {
-            const userData = evt.data;
+            const userData = (evt as any).data;
 
             try {
                 // データベースにユーザーを追加
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
         // ユーザー更新イベントを処理
         if (eventType === 'user.updated') {
-            const userData = evt.data;
+            const userData = (evt as any).data;
 
             try {
                 // データベースのユーザー情報を更新
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
         // ユーザー削除イベントを処理
         if (eventType === 'user.deleted') {
-            const userData = evt.data;
+            const userData = (evt as any).data;
 
             try {
                 // データベースからユーザーを削除
