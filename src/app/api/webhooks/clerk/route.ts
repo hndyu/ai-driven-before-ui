@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Webhook } from 'svix';
 import { PrismaClient } from '@prisma/client';
+import type { WebhookEvent } from '@clerk/nextjs/server';
 
 const prisma = new PrismaClient();
 
@@ -23,36 +24,36 @@ export async function POST(req: NextRequest) {
 
         // Webhookの署名を検証
         const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
-        let evt;
+        let evt: WebhookEvent;
 
         try {
             evt = wh.verify(body, {
                 'svix-id': svix_id,
                 'svix-timestamp': svix_timestamp,
                 'svix-signature': svix_signature,
-            });
+            }) as WebhookEvent;
         } catch (err) {
             console.error('Webhook signature verification failed:', err);
             return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
         }
 
         // イベントタイプを取得
-        const eventType = (evt as any).type;
+        const eventType = evt.type;
         console.log(`Received webhook event: ${eventType}`);
 
         // ユーザー作成イベントを処理
         if (eventType === 'user.created') {
-            const userData = (evt as any).data;
+            const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
             try {
                 // データベースにユーザーを追加
                 const user = await prisma.user.create({
                     data: {
-                        id: userData.id,
-                        email: userData.email_addresses[0]?.email_address || '',
-                        firstName: userData.first_name || null,
-                        lastName: userData.last_name || null,
-                        imageUrl: userData.image_url || null,
+                        id: id,
+                        email: email_addresses[0]?.email_address || '',
+                        firstName: first_name || null,
+                        lastName: last_name || null,
+                        imageUrl: image_url || null,
                     },
                 });
 
@@ -66,17 +67,17 @@ export async function POST(req: NextRequest) {
 
         // ユーザー更新イベントを処理
         if (eventType === 'user.updated') {
-            const userData = (evt as any).data;
+            const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
             try {
                 // データベースのユーザー情報を更新
                 const user = await prisma.user.update({
-                    where: { id: userData.id },
+                    where: { id: id },
                     data: {
-                        email: userData.email_addresses[0]?.email_address || '',
-                        firstName: userData.first_name || null,
-                        lastName: userData.last_name || null,
-                        imageUrl: userData.image_url || null,
+                        email: email_addresses[0]?.email_address || '',
+                        firstName: first_name || null,
+                        lastName: last_name || null,
+                        imageUrl: image_url || null,
                         updatedAt: new Date(),
                     },
                 });
@@ -91,15 +92,19 @@ export async function POST(req: NextRequest) {
 
         // ユーザー削除イベントを処理
         if (eventType === 'user.deleted') {
-            const userData = (evt as any).data;
+            const { id } = evt.data;
+
+            if (!id) {
+                return NextResponse.json({ error: 'User ID not found in webhook data' }, { status: 400 });
+            }
 
             try {
                 // データベースからユーザーを削除
                 await prisma.user.delete({
-                    where: { id: userData.id },
+                    where: { id: id },
                 });
 
-                console.log('User deleted from database:', userData.id);
+                console.log('User deleted from database:', id);
                 return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
             } catch (dbError) {
                 console.error('Database error:', dbError);

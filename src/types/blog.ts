@@ -24,7 +24,7 @@ export interface ApiResponse<T> {
     message: string;
     posts?: T[];
     post?: T;
-    err?: any;
+    err?: Error;
 }
 
 // 投稿一覧取得用のレスポンス型
