@@ -3,7 +3,9 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 const isPublicRoute = createRouteMatcher([
     '/sign-in(.*)',
     '/sign-up(.*)',
-    '/api/webhooks/clerk' // webhookエンドポイントを認証対象から除外
+    '/api/webhooks/clerk', // webhookエンドポイントを認証対象から除外
+    '/public-articles(.*)', // 未ログインでも閲覧できる公開記事ページ
+    '/api/blog/public(.*)' // 公開 API を認証対象から除外
 ])
 
 export default clerkMiddleware(async (auth, req) => {
