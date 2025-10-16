@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/types/blog';
 import { fetchPosts } from '@/lib/api';
 import { Card, Button } from '@/components/UI';
@@ -20,6 +20,9 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // リクエストの競合を防ぐための識別子
+    const latestRequestId = useRef(0);
+
     // Reload posts when auth state (user) is loaded/changes so we can filter by author
     useEffect(() => {
         loadPosts();
@@ -27,22 +30,32 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
     }, [isLoaded, user?.id]);
 
     const loadPosts = async () => {
+        // 新しいリクエストを開始 -> id を更新
+        latestRequestId.current += 1;
+        const reqId = latestRequestId.current;
+
         try {
             setLoading(true);
             setError(null);
             const fetchedPosts = await fetchPosts();
+
+            // このレスポンスが最新でないなら無視する
+            if (reqId !== latestRequestId.current) return;
+
             // フェッチした投稿を、ログインユーザーの投稿のみ表示するようにフィルタする
             if (isLoaded && user) {
                 setPosts(fetchedPosts.filter((p) => p.authorId === user.id));
             } else {
-                // 読み込み完了後に未ログインであれば、空配列にする
-                // 認証情報がまだロードされていない場合は一時的に全部非表示にしておく
                 setPosts([]);
             }
         } catch (err) {
+            // 最新リクエストか確認してからエラーハンドリング
+            if (reqId !== latestRequestId.current) return;
             setError('投稿の読み込みに失敗しました');
             console.error('Error loading posts:', err);
         } finally {
+            // 最新リクエストか確認してから loading を解除
+            if (reqId !== latestRequestId.current) return;
             setLoading(false);
         }
     };
