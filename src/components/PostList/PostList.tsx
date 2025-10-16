@@ -36,12 +36,8 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                 setPosts(fetchedPosts.filter((p) => p.authorId === user.id));
             } else {
                 // 読み込み完了後に未ログインであれば、空配列にする
-                if (isLoaded && !user) {
-                    setPosts([]);
-                } else {
-                    // 認証情報がまだロードされていない場合は一時的に全部非表示にしておく
-                    setPosts([]);
-                }
+                // 認証情報がまだロードされていない場合は一時的に全部非表示にしておく
+                setPosts([]);
             }
         } catch (err) {
             setError('投稿の読み込みに失敗しました');
