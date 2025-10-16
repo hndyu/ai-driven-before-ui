@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Post } from '@/types/blog';
 import { fetchPosts } from '@/lib/api';
 import { Card, Button } from '@/components/UI';
+import { useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 
 interface PostListProps {
     onEditPost?: (post: Post) => void;
@@ -13,20 +15,34 @@ interface PostListProps {
 }
 
 export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPostClick }: PostListProps) {
+    const { user, isLoaded } = useUser();
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Reload posts when auth state (user) is loaded/changes so we can filter by author
     useEffect(() => {
         loadPosts();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoaded, user?.id]);
 
     const loadPosts = async () => {
         try {
             setLoading(true);
             setError(null);
             const fetchedPosts = await fetchPosts();
-            setPosts(fetchedPosts);
+            // フェッチした投稿を、ログインユーザーの投稿のみ表示するようにフィルタする
+            if (isLoaded && user) {
+                setPosts(fetchedPosts.filter((p) => p.authorId === user.id));
+            } else {
+                // 読み込み完了後に未ログインであれば、空配列にする
+                if (isLoaded && !user) {
+                    setPosts([]);
+                } else {
+                    // 認証情報がまだロードされていない場合は一時的に全部非表示にしておく
+                    setPosts([]);
+                }
+            }
         } catch (err) {
             setError('投稿の読み込みに失敗しました');
             console.error('Error loading posts:', err);
@@ -95,6 +111,25 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                         <Button onClick={loadPosts} variant="outline">
                             再読み込み
                         </Button>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
+
+    // 認証済みユーザーが存在しない場合はサインインを促す
+    if (isLoaded && !user) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-900">投稿一覧</h2>
+                </div>
+                <Card>
+                    <div className="text-center py-8">
+                        <p className="text-gray-700 mb-4">自身が書いた投稿のみ表示されます。投稿を見るにはログインしてください。</p>
+                        <Link href="/sign-in">
+                            <Button variant="primary">サインイン</Button>
+                        </Link>
                     </div>
                 </Card>
             </div>

@@ -9,6 +9,10 @@ export async function fetchPosts(): Promise<Post[]> {
         const data: PostsResponse = await response.json();
 
         if (!response.ok) {
+            // 未認証（401）の場合はクライアント側で空配列として扱う
+            if (response.status === 401) {
+                return [];
+            }
             throw new Error(data.message || '投稿の取得に失敗しました');
         }
 

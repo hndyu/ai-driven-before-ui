@@ -17,13 +17,20 @@ export async function main() {
 export const GET = async (req: Request) => {
     try {
         await main(); // DB接続を確実に行う
-        // 投稿者情報も含めて取得
+        // 認証されたユーザーの投稿のみ取得する
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return NextResponse.json({ message: "認証が必要です" }, { status: 401 });
+        }
+
         const posts = await prisma.post.findMany({
+            where: { authorId: userId },
             orderBy: { date: "asc" },
             include: {
                 author: true // 投稿者の情報も含める
             }
         });
+
         return NextResponse.json({ message: "Success", posts }, { status: 200 });
     } catch (err) {
         console.error("GET エラー:", err);
