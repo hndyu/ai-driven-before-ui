@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks/clerk", // webhookエンドポイントを認証対象から除外
   "/public-articles(.*)", // 未ログインでも閲覧できる公開記事ページ
   "/blog(.*)", // ブログ個別ページは公開にする（続きを読むからログインを要求しない）
+  "/api/blog(.*)", // /api/blog の全エンドポイントを未認証でアクセス可能にする（個別投稿の取得等）
   "/api/blog/public(.*)", // 公開 API を認証対象から除外
 ]);
 
