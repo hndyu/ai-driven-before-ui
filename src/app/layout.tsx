@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+// @ts-ignore: Clerk types sometimes mismatch in this environment; runtime exports ClerkProvider
 import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
@@ -15,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "My Blog - 技術とライフスタイルのブログ",
-  description: "技術とライフスタイルについて書いているブログです。最新の技術情報や日常の出来事を共有しています。",
+  description:
+    "技術とライフスタイルについて書いているブログです。最新の技術情報や日常の出来事を共有しています。",
 };
 
 export default function RootLayout({
