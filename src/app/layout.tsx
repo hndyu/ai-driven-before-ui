@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// @ts-ignore: Clerk types sometimes mismatch in this environment; runtime exports ClerkProvider
+// @ts-expect-error: Clerk types sometimes mismatch in this environment; runtime exports ClerkProvider
 import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
