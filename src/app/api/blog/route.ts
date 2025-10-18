@@ -14,7 +14,7 @@ export async function main() {
     }
 }
 
-export const GET = async (req: Request) => {
+export const GET = async () => {
     try {
         await main(); // DB接続を確実に行う
         // 認証されたユーザーの投稿のみ取得する

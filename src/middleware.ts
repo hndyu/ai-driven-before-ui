@@ -1,4 +1,3 @@
-// @ts-expect-error: Clerk types not required in this environment, avoid build break
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isPublicRoute = createRouteMatcher([

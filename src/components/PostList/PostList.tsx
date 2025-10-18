@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/types/blog';
 import { fetchPosts } from '@/lib/api';
 import { Card, Button } from '@/components/UI';
+// @ts-expect-error: Clerk types sometimes mismatch in this environment
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 

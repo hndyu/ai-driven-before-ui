@@ -40,7 +40,7 @@ export default function Home() {
     }
   };
 
-  const handlePostSuccess = (post: Post) => {
+  const handlePostSuccess = () => {
     setIsCreateModalOpen(false);
     setIsEditModalOpen(false);
     setEditingPost(null);

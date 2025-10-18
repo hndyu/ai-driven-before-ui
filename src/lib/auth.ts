@@ -6,7 +6,7 @@ import { NextRequest } from 'next/server';
  * @param req NextRequestオブジェクト
  * @returns ユーザーID（認証されていない場合はnull）
  */
-export async function getCurrentUserId(req?: NextRequest): Promise<string | null> {
+export async function getCurrentUserId(): Promise<string | null> {
     try {
         const { userId } = await auth();
         return userId;
@@ -22,6 +22,6 @@ export async function getCurrentUserId(req?: NextRequest): Promise<string | null
  * @returns 認証されているかどうか
  */
 export async function isAuthenticated(req?: NextRequest): Promise<boolean> {
-    const userId = await getCurrentUserId(req);
+    const userId = await getCurrentUserId();
     return userId !== null;
 }

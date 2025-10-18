@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const GET = async (req: Request) => {
+export const GET = async () => {
     try {
         await prisma.$connect();
 

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { Post } from '@/types/blog';
 import { Card } from '@/components/UI';
-import PostList from '@/components/PostList/PostList';
 
 export default function PublicArticlesPage() {
     const [posts, setPosts] = useState<Post[]>([]);
