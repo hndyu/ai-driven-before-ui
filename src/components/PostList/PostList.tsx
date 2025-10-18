@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/types/blog';
 import { fetchPosts } from '@/lib/api';
 import { Card, Button } from '@/components/UI';
+import { useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 
 interface PostListProps {
     onEditPost?: (post: Post) => void;
@@ -13,24 +15,47 @@ interface PostListProps {
 }
 
 export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPostClick }: PostListProps) {
+    const { user, isLoaded } = useUser();
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // リクエストの競合を防ぐための識別子
+    const latestRequestId = useRef(0);
+
+    // Reload posts when auth state (user) is loaded/changes so we can filter by author
     useEffect(() => {
         loadPosts();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoaded, user?.id]);
 
     const loadPosts = async () => {
+        // 新しいリクエストを開始 -> id を更新
+        latestRequestId.current += 1;
+        const reqId = latestRequestId.current;
+
         try {
             setLoading(true);
             setError(null);
             const fetchedPosts = await fetchPosts();
-            setPosts(fetchedPosts);
+
+            // このレスポンスが最新でないなら無視する
+            if (reqId !== latestRequestId.current) return;
+
+            // フェッチした投稿を、ログインユーザーの投稿のみ表示するようにフィルタする
+            if (isLoaded && user) {
+                setPosts(fetchedPosts.filter((p) => p.authorId === user.id));
+            } else {
+                setPosts([]);
+            }
         } catch (err) {
+            // 最新リクエストか確認してからエラーハンドリング
+            if (reqId !== latestRequestId.current) return;
             setError('投稿の読み込みに失敗しました');
             console.error('Error loading posts:', err);
         } finally {
+            // 最新リクエストか確認してから loading を解除
+            if (reqId !== latestRequestId.current) return;
             setLoading(false);
         }
     };
@@ -95,6 +120,25 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                         <Button onClick={loadPosts} variant="outline">
                             再読み込み
                         </Button>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
+
+    // 認証済みユーザーが存在しない場合はサインインを促す
+    if (isLoaded && !user) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-900">投稿一覧</h2>
+                </div>
+                <Card>
+                    <div className="text-center py-8">
+                        <p className="text-gray-700 mb-4">自身が書いた投稿のみ表示されます。投稿を見るにはログインしてください。</p>
+                        <Link href="/sign-in">
+                            <Button variant="primary">サインイン</Button>
+                        </Link>
                     </div>
                 </Card>
             </div>
