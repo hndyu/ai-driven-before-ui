@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { main } from "../route";
 import { getCurrentUserId } from "@/lib/auth";
-import { postInputSchema } from "@/lib/schemas";
+import { postInputSchema, PostInput } from "@/lib/schemas";
 
 const prisma = new PrismaClient();
 
@@ -56,7 +56,7 @@ export const PUT = async (req: Request) => {
       );
     }
 
-    const { title, description, imageUrl } = parsed.data as any;
+  const { title, description, imageUrl } = parsed.data as PostInput;
 
     await main(); // DB接続を確実に行う
 

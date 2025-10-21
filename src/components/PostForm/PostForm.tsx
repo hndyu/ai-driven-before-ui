@@ -36,7 +36,7 @@ export default function PostForm({
         title: post.title,
         description: post.description,
       });
-      if ((post as any).imageUrl) {
+      if (post.imageUrl) {
         // no-op: existing cover image URL is managed server-side; we don't prefill file input
       }
     }
@@ -128,8 +128,8 @@ export default function PostForm({
           if (uploadData && uploadData.post) {
             result = uploadData.post as Post;
           } else if (uploadData && uploadData.publicUrl) {
-            // fallback: set imageUrl locally
-            (result as any).imageUrl = uploadData.publicUrl;
+            // fallback: set imageUrl locally (Post.imageUrl is optional so this is safe)
+            result.imageUrl = uploadData.publicUrl;
           }
         }
       }

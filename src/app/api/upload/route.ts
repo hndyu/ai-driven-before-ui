@@ -22,11 +22,11 @@ export const POST = async (req: Request) => {
       return NextResponse.json({ message: "Expected multipart/form-data" }, { status: 400 });
     }
 
-  const formData = await req.formData();
-  const file = formData.get("file") as File | null;
-  // optional postId can be sent along with the upload to associate image with a post
-  const postIdRaw = formData.get("postId") as string | null;
-  const postId = postIdRaw ? parseInt(postIdRaw, 10) : undefined;
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+    // optional postId can be sent along with the upload to associate image with a post
+    const postIdRaw = formData.get("postId") as string | null;
+    const postId = postIdRaw ? parseInt(postIdRaw, 10) : undefined;
     if (!file) {
       return NextResponse.json({ message: "No file provided" }, { status: 400 });
     }
@@ -35,7 +35,7 @@ export const POST = async (req: Request) => {
     const originalExt = (file as File).name.split('.').pop()?.toLowerCase() || '';
     const uuid = crypto.randomUUID();
     const filename = `${uuid}${originalExt ? `.${originalExt}` : ''}`;
-    
+
     const bucket = "images";
 
     const arrayBuffer = await file.arrayBuffer();
