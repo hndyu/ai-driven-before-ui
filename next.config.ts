@@ -1,7 +1,17 @@
 import type { NextConfig } from "next";
 
+// Allow images served from Supabase storage (and other supabase-hosted domains)
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

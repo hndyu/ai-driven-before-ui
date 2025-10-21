@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Post } from "@/types/blog";
 import { fetchPost } from "@/lib/api";
 import { Card, Button } from "@/components/UI";
+import Image from 'next/image';
 
 interface PostDetailProps {
   postId: number;
@@ -181,11 +182,13 @@ export default function PostDetail({
         <article className="prose prose-lg prose-gray max-w-none">
           {/* 画像があれば本文上部に表示 */}
           {post.imageUrl && (
-            <div className="mb-6">
-              <img
+            <div className="mb-6 relative w-full h-96 rounded-md overflow-hidden">
+              <Image
                 src={post.imageUrl}
                 alt={post.title || 'post image'}
-                className="w-full max-h-96 object-cover rounded-md"
+                fill
+                style={{ objectFit: 'cover' }}
+                sizes="100vw"
               />
             </div>
           )}

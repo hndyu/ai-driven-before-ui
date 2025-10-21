@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/types/blog';
 import { fetchPosts } from '@/lib/api';
 import { Card, Button } from '@/components/UI';
+import Image from 'next/image';
 // @ts-expect-error: Clerk types sometimes mismatch in this environment
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -233,11 +234,13 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                                 {/* 投稿内容 */}
                                 {/* 画像があれば表示 */}
                                 {post.imageUrl && (
-                                    <div className="mb-4">
-                                        <img
+                                    <div className="mb-4 relative w-full h-64 rounded-md overflow-hidden">
+                                        <Image
                                             src={post.imageUrl}
                                             alt={post.title || 'post image'}
-                                            className="w-full max-h-64 object-cover rounded-md"
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                            sizes="(max-width: 640px) 100vw, 50vw"
                                         />
                                     </div>
                                 )}
