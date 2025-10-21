@@ -28,6 +28,7 @@ export default function PostForm({
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (post) {
@@ -35,6 +36,9 @@ export default function PostForm({
         title: post.title,
         description: post.description,
       });
+      if ((post as any).imageUrl) {
+        // no-op: existing cover image URL is managed server-side; we don't prefill file input
+      }
     }
   }, [post]);
 
@@ -79,6 +83,26 @@ export default function PostForm({
     setLoading(true);
     try {
       let result: Post;
+      let imageUrl: string | undefined = undefined;
+
+      // If a file was selected, upload it first
+      // If a file was selected, upload it first
+      if (selectedFile) {
+        const fd = new FormData();
+        fd.append("file", selectedFile);
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: fd,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error("Image upload failed");
+        }
+
+        const uploadData = await uploadRes.json();
+        imageUrl = uploadData.publicUrl;
+      }
 
       if (post) {
         // 更新
@@ -87,6 +111,7 @@ export default function PostForm({
           title: formData.title,
           description: formData.description,
           authorId: user.id, // 認証されたユーザーIDを設定
+          imageUrl,
         };
         result = await updatePost(updateData);
       } else {
@@ -95,6 +120,7 @@ export default function PostForm({
           title: formData.title,
           description: formData.description,
           authorId: user.id, // 認証されたユーザーIDを設定
+          imageUrl,
         };
         result = await createPost(createData);
       }
@@ -152,6 +178,23 @@ export default function PostForm({
           タイトル: {formData.title.length}/100
         </span>
         <span className="ml-4">内容: {formData.description.length}/5000</span>
+      </div>
+
+      <div>
+        <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-2">
+          カバー画像（任意）
+        </label>
+        <input
+          id="coverImage"
+          name="coverImage"
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const f = e.target.files && e.target.files[0];
+            setSelectedFile(f || null);
+          }}
+          className="block w-full text-sm text-gray-700 border border-gray-300 rounded-md p-2 bg-white"
+        />
       </div>
 
       {/* ボタン */}

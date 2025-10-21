@@ -12,10 +12,12 @@
     "@clerk/nextjs": "^6.33.3",
     "@clerk/types": "^4.95.0",
     "@prisma/client": "^6.17.0",
+    "@supabase/supabase-js": "^2.75.1",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "svix": "^1.77.0",
+    "uuid": "^13.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -24,6 +26,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "prisma": "^6.17.0",

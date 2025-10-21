@@ -63,7 +63,7 @@ export const POST = async (req: Request) => {
       );
     }
 
-    const { title, description } = parsed.data;
+    const { title, description, imageUrl } = parsed.data as any;
     await main(); // DB接続を確実に行う
 
     // 投稿者IDを含めて投稿を作成
@@ -72,6 +72,7 @@ export const POST = async (req: Request) => {
         title,
         description,
         authorId: userId, // 認証されたユーザーIDを設定
+        ...(imageUrl ? { imageUrl } : {}),
       },
       include: {
         author: true, // 投稿者の情報も含める

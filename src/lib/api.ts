@@ -108,6 +108,7 @@ export async function updatePost(postData: UpdatePostData): Promise<Post> {
       body: JSON.stringify({
         title: postData.title,
         description: postData.description,
+        imageUrl: (postData as any).imageUrl || undefined,
       }),
     });
 

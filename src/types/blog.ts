@@ -17,6 +17,7 @@ export interface Post {
     date: string;
     authorId: string; // 投稿者のユーザーID
     author?: User; // 投稿者の情報（オプショナル）
+    imageUrl?: string;
 }
 
 // API レスポンスの型定義
@@ -44,6 +45,7 @@ export interface CreatePostData {
     title: string;
     description: string;
     authorId: string; // 投稿者のユーザーIDを必須に
+    imageUrl?: string;
 }
 
 export interface UpdatePostData extends CreatePostData {

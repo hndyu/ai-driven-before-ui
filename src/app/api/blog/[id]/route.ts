@@ -56,7 +56,7 @@ export const PUT = async (req: Request) => {
       );
     }
 
-    const { title, description } = parsed.data;
+    const { title, description, imageUrl } = parsed.data as any;
 
     await main(); // DB接続を確実に行う
 
@@ -73,7 +73,11 @@ export const PUT = async (req: Request) => {
     }
 
     const post = await prisma.post.update({
-      data: { title, description },
+      data: {
+        title,
+        description,
+        ...(imageUrl ? { imageUrl } : {}),
+      },
       where: { id },
       include: {
         author: true, // 投稿者の情報も含める

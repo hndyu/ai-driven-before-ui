@@ -20,6 +20,7 @@ model Post {
   date DateTime @default(now())
   authorId String // 投稿者のユーザーID
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade) // ユーザーとのリレーション
+  imageUrl String?
 }
 
 model User {
