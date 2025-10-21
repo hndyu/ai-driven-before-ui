@@ -56,7 +56,7 @@ export const PUT = async (req: Request) => {
       );
     }
 
-  const { title, description, imageUrl } = parsed.data as PostInput;
+    const { title, description, imageUrl } = parsed.data as PostInput;
 
     await main(); // DB接続を確実に行う
 

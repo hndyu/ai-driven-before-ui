@@ -63,7 +63,7 @@ export const POST = async (req: Request) => {
       );
     }
 
-  const { title, description, imageUrl } = parsed.data as PostInput;
+    const { title, description, imageUrl } = parsed.data as PostInput;
     await main(); // DB接続を確実に行う
 
     // 投稿者IDを含めて投稿を作成

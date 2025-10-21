@@ -179,6 +179,17 @@ export default function PostDetail({
       {/* 投稿内容 */}
       <Card>
         <article className="prose prose-lg prose-gray max-w-none">
+          {/* 画像があれば本文上部に表示 */}
+          {post.imageUrl && (
+            <div className="mb-6">
+              <img
+                src={post.imageUrl}
+                alt={post.title || 'post image'}
+                className="w-full max-h-96 object-cover rounded-md"
+              />
+            </div>
+          )}
+
           <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
             {post.description}
           </div>

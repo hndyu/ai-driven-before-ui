@@ -231,6 +231,17 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                                 </div>
 
                                 {/* 投稿内容 */}
+                                {/* 画像があれば表示 */}
+                                {post.imageUrl && (
+                                    <div className="mb-4">
+                                        <img
+                                            src={post.imageUrl}
+                                            alt={post.title || 'post image'}
+                                            className="w-full max-h-64 object-cover rounded-md"
+                                        />
+                                    </div>
+                                )}
+
                                 <div className="prose prose-gray max-w-none">
                                     <p className="text-gray-700 line-clamp-3">
                                         {post.description}
