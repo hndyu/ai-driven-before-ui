@@ -5,7 +5,7 @@ interface PageProps {
   params: { id: string };
 }
 
-export default function PostPage({ params }: PageProps) {
+export default async function PostPage({ params }: PageProps) {
   const id = parseInt(params.id, 10);
 
   if (Number.isNaN(id)) {

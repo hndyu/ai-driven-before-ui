@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Post } from '@/types/blog';
 import { Card } from '@/components/UI';
+import Image from 'next/image';
 
 export default function PublicArticlesPage() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -86,6 +87,18 @@ export default function PublicArticlesPage() {
                                                 <a className="text-blue-600 hover:text-blue-700" href={`/blog/${post.id}`}>続きを読む →</a>
                                             </div>
                                         </div>
+                                        {/* 画像があればカード上部に表示 */}
+                                        {post.imageUrl && (
+                                            <div className="mb-4 relative w-full h-64 rounded-md overflow-hidden">
+                                                <Image
+                                                    src={post.imageUrl}
+                                                    alt={post.title || 'post image'}
+                                                    fill
+                                                    style={{ objectFit: 'cover' }}
+                                                    sizes="(max-width: 640px) 100vw, 50vw"
+                                                />
+                                            </div>
+                                        )}
                                         <div className="prose prose-gray max-w-none">
                                             <p className="text-gray-700 line-clamp-3">{post.description}</p>
                                         </div>
