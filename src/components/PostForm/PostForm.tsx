@@ -83,13 +83,35 @@ export default function PostForm({
     setLoading(true);
     try {
       let result: Post;
-      let imageUrl: string | undefined = undefined;
 
-      // If a file was selected, upload it first
-      // If a file was selected, upload it first
+      // First, create or update the post without imageUrl
+      if (post) {
+        // 更新（画像は後でアップロードして紐付ける）
+        const updateData: UpdatePostData = {
+          id: post.id,
+          title: formData.title,
+          description: formData.description,
+          authorId: user.id, // 認証されたユーザーIDを設定
+          // do not include imageUrl here; we'll upload after save
+        } as UpdatePostData;
+        result = await updatePost(updateData);
+      } else {
+        // 新規作成（画像は後でアップロードして紐付ける）
+        const createData: CreatePostData = {
+          title: formData.title,
+          description: formData.description,
+          authorId: user.id, // 認証されたユーザーIDを設定
+        } as CreatePostData;
+        result = await createPost(createData);
+      }
+
+      // If post save succeeded and a file was selected, upload it and let the upload route
+      // associate it with the saved post by sending postId. The upload route will update
+      // the post.imageUrl and return the updated post.
       if (selectedFile) {
         const fd = new FormData();
         fd.append("file", selectedFile);
+        fd.append("postId", String(result.id));
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
@@ -97,32 +119,19 @@ export default function PostForm({
         });
 
         if (!uploadRes.ok) {
-          throw new Error("Image upload failed");
+          // Image upload failed, but the post itself was saved. Notify the user.
+          console.error("Image upload failed after save", await uploadRes.text());
+          alert("投稿は保存されましたが、画像のアップロードに失敗しました。");
+        } else {
+          const uploadData = await uploadRes.json();
+          // If upload route returned the updated post, use that so UI shows image immediately
+          if (uploadData && uploadData.post) {
+            result = uploadData.post as Post;
+          } else if (uploadData && uploadData.publicUrl) {
+            // fallback: set imageUrl locally
+            (result as any).imageUrl = uploadData.publicUrl;
+          }
         }
-
-        const uploadData = await uploadRes.json();
-        imageUrl = uploadData.publicUrl;
-      }
-
-      if (post) {
-        // 更新
-        const updateData: UpdatePostData = {
-          id: post.id,
-          title: formData.title,
-          description: formData.description,
-          authorId: user.id, // 認証されたユーザーIDを設定
-          imageUrl,
-        };
-        result = await updatePost(updateData);
-      } else {
-        // 新規作成
-        const createData: CreatePostData = {
-          title: formData.title,
-          description: formData.description,
-          authorId: user.id, // 認証されたユーザーIDを設定
-          imageUrl,
-        };
-        result = await createPost(createData);
       }
 
       onSuccess(result);
