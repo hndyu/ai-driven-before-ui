@@ -27,11 +27,11 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
     // リクエストの競合を防ぐための識別子
     const latestRequestId = useRef(0);
 
-    // Reload posts when auth state (user) is loaded/changes so we can filter by author
+    // Reload posts when auth state (user) or filter changes so we can filter by author
     useEffect(() => {
         loadPosts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoaded, user?.id]);
+    }, [isLoaded, user?.id, filter]);
 
     const loadPosts = async () => {
         // 新しいリクエストを開始 -> id を更新
@@ -173,8 +173,26 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                 <div className="flex items-center space-x-2">
                     <div className="text-sm text-gray-600">表示:</div>
                     <div className="flex space-x-2">
-                        <Button onClick={() => { setFilter('all'); loadPosts(); }} variant={filter === 'all' ? 'primary' : 'outline'} size="sm">すべて</Button>
-                        <Button onClick={() => { setFilter('favorites'); loadPosts(); }} variant={filter === 'favorites' ? 'primary' : 'outline'} size="sm">お気に入り</Button>
+                                <Button
+                                    onClick={() => {
+                                        if (filter === 'all') return; // 既に選択済みなら何もしない
+                                        setFilter('all');
+                                    }}
+                                    variant={filter === 'all' ? 'primary' : 'outline'}
+                                    size="sm"
+                                >
+                                    すべて
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (filter === 'favorites') return; // 既に選択済みなら何もしない
+                                        setFilter('favorites');
+                                    }}
+                                    variant={filter === 'favorites' ? 'primary' : 'outline'}
+                                    size="sm"
+                                >
+                                    お気に入り
+                                </Button>
                     </div>
                 </div>
             </div>
