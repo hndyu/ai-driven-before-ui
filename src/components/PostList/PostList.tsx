@@ -176,11 +176,6 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
                         <Button onClick={() => { setFilter('all'); loadPosts(); }} variant={filter === 'all' ? 'primary' : 'outline'} size="sm">すべて</Button>
                         <Button onClick={() => { setFilter('favorites'); loadPosts(); }} variant={filter === 'favorites' ? 'primary' : 'outline'} size="sm">お気に入り</Button>
                     </div>
-                    {onCreatePost && (
-                        <Button onClick={onCreatePost} variant="primary">
-                            新規投稿
-                        </Button>
-                    )}
                 </div>
             </div>
 
