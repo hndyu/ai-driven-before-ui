@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/types/blog';
 import { fetchPosts } from '@/lib/api';
 import { Card, Button } from '@/components/UI';
+import { toggleFavorite } from '@/lib/api';
 import Image from 'next/image';
 // @ts-expect-error: Clerk types sometimes mismatch in this environment
 import { useUser } from '@clerk/nextjs';
@@ -21,6 +22,7 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [filter, setFilter] = useState<'all' | 'favorites'>('all');
 
     // リクエストの競合を防ぐための識別子
     const latestRequestId = useRef(0);
@@ -44,9 +46,10 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
             // このレスポンスが最新でないなら無視する
             if (reqId !== latestRequestId.current) return;
 
-            // フェッチした投稿を、ログインユーザーの投稿のみ表示するようにフィルタする
+            // フェッチした投稿を、ログインユーザーの投稿のみ表示するようにフィルタし、フィルターを適用
             if (isLoaded && user) {
-                setPosts(fetchedPosts.filter((p) => p.authorId === user.id));
+                const own = fetchedPosts.filter((p) => p.authorId === user.id);
+                setPosts(filter === 'favorites' ? own.filter((p) => p.favorite) : own);
             } else {
                 setPosts([]);
             }
@@ -76,6 +79,21 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
         } catch (err) {
             alert('投稿の削除に失敗しました');
             console.error('Error deleting post:', err);
+        }
+    };
+
+    const handleToggleFavorite = async (post: Post) => {
+        try {
+            // optimistic update
+            setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, favorite: !p.favorite } : p)));
+            await toggleFavorite(post.id, !post.favorite);
+            // reload to ensure server state is respected
+            await loadPosts();
+        } catch (err) {
+            console.error('Error toggling favorite:', err);
+            setError('お気に入りの更新に失敗しました');
+            // revert optimistic
+            setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, favorite: post.favorite } : p)));
         }
     };
 
@@ -152,11 +170,18 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
             {/* ヘッダー */}
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">投稿一覧</h2>
-                {onCreatePost && (
-                    <Button onClick={onCreatePost} variant="primary">
-                        新規投稿
-                    </Button>
-                )}
+                <div className="flex items-center space-x-2">
+                    <div className="text-sm text-gray-600">表示:</div>
+                    <div className="flex space-x-2">
+                        <Button onClick={() => { setFilter('all'); loadPosts(); }} variant={filter === 'all' ? 'primary' : 'outline'} size="sm">すべて</Button>
+                        <Button onClick={() => { setFilter('favorites'); loadPosts(); }} variant={filter === 'favorites' ? 'primary' : 'outline'} size="sm">お気に入り</Button>
+                    </div>
+                    {onCreatePost && (
+                        <Button onClick={onCreatePost} variant="primary">
+                            新規投稿
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* 投稿リスト */}
@@ -210,6 +235,15 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
 
                                     {/* アクションボタン */}
                                     <div className="flex space-x-2 ml-4">
+                                        <button
+                                            onClick={() => handleToggleFavorite(post)}
+                                            aria-pressed={!!post.favorite}
+                                            className={`inline-flex items-center justify-center px-3 py-1 rounded-md transition-colors duration-150 ${post.favorite ? 'text-red-600' : 'text-gray-500'}`}
+                                        >
+                                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill={post.favorite ? 'currentColor' : 'none'} stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-8.682a4.5 4.5 0 010-6.364z" />
+                                            </svg>
+                                        </button>
                                         {onEditPost && (
                                             <Button
                                                 onClick={() => onEditPost(post)}

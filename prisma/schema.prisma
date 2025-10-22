@@ -21,6 +21,7 @@ model Post {
   authorId String // 投稿者のユーザーID
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade) // ユーザーとのリレーション
   imageUrl String?
+  favorites Favorite[]
 }
 
 model User {
@@ -32,4 +33,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts Post[] // ユーザーが作成した投稿のリレーション
+  favorites Favorite[]
+}
+
+model Favorite {
+  id Int @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
 }

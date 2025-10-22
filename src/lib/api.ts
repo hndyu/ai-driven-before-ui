@@ -142,3 +142,23 @@ export async function deletePost(id: number): Promise<void> {
     throw error;
   }
 }
+
+// お気に入りを切り替える
+export async function toggleFavorite(id: number, favorite: boolean): Promise<void> {
+  try {
+    const url = `${API_BASE_URL}/${id}/favorite`;
+    const response = await fetch(url, {
+      method: favorite ? "POST" : "DELETE",
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || "お気に入りの更新に失敗しました");
+    }
+
+    return;
+  } catch (error) {
+    console.error("Error toggling favorite:", error);
+    throw error;
+  }
+}

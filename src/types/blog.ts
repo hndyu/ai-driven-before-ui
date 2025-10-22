@@ -17,6 +17,7 @@ export interface Post {
     date: string;
     authorId: string; // 投稿者のユーザーID
     author?: User; // 投稿者の情報（オプショナル）
+    favorite?: boolean;
     imageUrl?: string;
 }
 
@@ -50,4 +51,5 @@ export interface CreatePostData {
 
 export interface UpdatePostData extends CreatePostData {
     id: number;
+    favorite?: boolean;
 }

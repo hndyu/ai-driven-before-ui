@@ -26,7 +26,16 @@ export const GET = async (req: Request) => {
       return NextResponse.json({ message: "Not Found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Success", post }, { status: 200 });
+    // 現在ユーザーの favorite かどうかを付与
+    const userId = await getCurrentUserId();
+    let isFavorite = false;
+    if (userId) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fav = await (prisma as any).favorite.findFirst({ where: { userId, postId: id } });
+      isFavorite = !!fav;
+    }
+
+    return NextResponse.json({ message: "Success", post: { ...post, favorite: isFavorite } }, { status: 200 });
   } catch (err) {
     console.error("GET [id] エラー:", err);
     return NextResponse.json({ message: "Error", err }, { status: 500 });
@@ -129,3 +138,4 @@ export const DELETE = async (req: Request) => {
     await prisma.$disconnect();
   }
 };
+

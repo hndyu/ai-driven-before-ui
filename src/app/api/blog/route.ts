@@ -20,10 +20,13 @@ export const GET = async () => {
     await main(); // DB接続を確実に行う
     // 認証されたユーザーの投稿のみ取得する
     const userId = await getCurrentUserId();
+
+    // 認証されていない場合は 401 を返す（フロントは空配列で扱う）
     if (!userId) {
       return NextResponse.json({ message: "認証が必要です" }, { status: 401 });
     }
 
+    // まずユーザーの投稿を取得
     const posts = await prisma.post.findMany({
       where: { authorId: userId },
       orderBy: { date: "asc" },
@@ -32,7 +35,17 @@ export const GET = async () => {
       },
     });
 
-    return NextResponse.json({ message: "Success", posts }, { status: 200 });
+    // 現在ユーザーの favorites を取得してセットする
+    // prisma client may need regenerating locally; use a temporary any cast
+    // prisma client may need regenerating locally; temporarily disable explicit any warning
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const favs = await (prisma as any).favorite.findMany({ where: { userId } });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const favSet = new Set((favs as any[]).map((f) => f.postId));
+
+    const postsWithFavorite = posts.map((p) => ({ ...p, favorite: favSet.has(p.id) }));
+
+    return NextResponse.json({ message: "Success", posts: postsWithFavorite }, { status: 200 });
   } catch (err) {
     console.error("GET エラー:", err);
     return NextResponse.json({ message: "Error", err }, { status: 500 });
