@@ -34,32 +34,32 @@ export default function PostList({ onEditPost, onDeletePost, onCreatePost, onPos
     }, [isLoaded, user?.id, filter]);
 
     const loadPosts = async () => {
-        // 新しいリクエストを開始 -> id を更新
         latestRequestId.current += 1;
         const reqId = latestRequestId.current;
+        const currentFilter = filter; // 現在のfilter状態をキャプチャ
 
         try {
             setLoading(true);
             setError(null);
             const fetchedPosts = await fetchPosts();
 
-            // このレスポンスが最新でないなら無視する
             if (reqId !== latestRequestId.current) return;
 
-            // フェッチした投稿を、ログインユーザーの投稿のみ表示するようにフィルタし、フィルターを適用
             if (isLoaded && user) {
                 const own = fetchedPosts.filter((p) => p.authorId === user.id);
-                setPosts(filter === 'favorites' ? own.filter((p) => p.favorite) : own);
+                // currentFilter を使用して、最新のフィルター状態を反映
+                const filtered = currentFilter === 'favorites'
+                    ? own.filter((p) => p.favorite)
+                    : own;
+                setPosts(filtered);
             } else {
                 setPosts([]);
             }
         } catch (err) {
-            // 最新リクエストか確認してからエラーハンドリング
             if (reqId !== latestRequestId.current) return;
             setError('投稿の読み込みに失敗しました');
             console.error('Error loading posts:', err);
         } finally {
-            // 最新リクエストか確認してから loading を解除
             if (reqId !== latestRequestId.current) return;
             setLoading(false);
         }
